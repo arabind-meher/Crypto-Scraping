@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 
 class Crypto:
-	def __init__(self) -> None:
+	def __init__(self):		
 		self.crypto_data = list()
 
 		for i in range(1, 11):
@@ -18,6 +18,7 @@ class Crypto:
 
 		if not isdir('Crypto Data'):
 			mkdir('Crypto Data')
+
 		DataFrame(self.crypto_data, columns=self.get_table_heading()).to_csv(
 			join('Crypto Data', str(datetime.now())+'.csv'), index=False)
 
