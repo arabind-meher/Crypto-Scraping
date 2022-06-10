@@ -14,3 +14,41 @@ Beautiful Soup is a Python library for pulling data out of HTML and XML files. I
 MySQL Connector/Python enables Python programs to access MySQL databases, using an API that is compliant with the Python Database API Specification v2.0 (PEP 249).
 
 ## [CSV Files](https://github.com/arabind-meher/Crypto-Scraping/tree/master/Crypto%20Data)
+
+## Code Blocks
+
+### Web Scraping
+```python
+import requests
+from bs4 import BeautifulSoup
+
+url = 'https://crypto.com/price'
+response = requests.get(url)
+text = response.text
+soup = BeautifulSoup(text, 'html.parser')
+```
+
+### MySQL Connection
+```python
+import mysql.connector
+
+database = mysql.connector.connect(
+    host='<host>',
+    user='<user>',
+    password='<password>',
+    database='<database>'
+)
+```
+
+### SQL Commands
+```sql
+CREATE TABLE `crypto_scraper`.`{table_name}` (
+    `Rank` INT NOT NULL,
+    `Name` VARCHAR(50) NOT NULL,
+    `Price` VARCHAR(20) NOT NULL,
+    `24H_Change` VARCHAR(20) NOT NULL,
+    `24H_Volume` VARCHAR(20) NOT NULL,
+    `Market_Cap` VARCHAR(20) NOT NULL,
+    PRIMARY KEY (`Name`)
+);'''
+```
