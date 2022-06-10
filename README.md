@@ -11,5 +11,6 @@ In computer programming, pandas is a software library written for the Python pro
 ### [BeautifulSoup4](https://beautiful-soup-4.readthedocs.io/en/latest/)
 Beautiful Soup is a Python library for pulling data out of HTML and XML files. It works with your favorite parser to provide idiomatic ways of navigating, searching, and modifying the parse tree. It commonly saves programmers hours or days of work.
 ### [MySQL Connector](https://dev.mysql.com/doc/connector-python/en/)
+MySQL Connector/Python enables Python programs to access MySQL databases, using an API that is compliant with the Python Database API Specification v2.0 (PEP 249).
 
 ## [CSV Files](https://github.com/arabind-meher/Crypto-Scraping/tree/master/Crypto%20Data)
