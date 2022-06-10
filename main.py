@@ -1,54 +1,58 @@
-from os import mkdir
-from os.path import isdir, join
-from datetime import datetime
+from os.path import join
 
-import requests
 from pandas import DataFrame
-from bs4 import BeautifulSoup
+from mysql.connector import Error
+
+from crypto_scraper import CryptoScraper
+from mysql_db import connect_db
+from util import check_directory, get_datetime
 
 
-class Crypto:
-	def __init__(self):		
-		self.crypto_data = list()
+def save_as_csv(data, file_name, table_heading):
+    check_directory('Crypto Data (csv)')
 
-		for i in range(1, 11):
-			url = f'https://crypto.com/price?page={i}'
-			print('Extracting:', url)
-			self.get_table_data(url)
+    DataFrame(data, columns=table_heading).to_csv(
+        join('Crypto Data (csv)', file_name + '.csv'), index=False)
+    print(f'--> CSV created! (Name): {file_name}')
 
-		if not isdir('Crypto Data'):
-			mkdir('Crypto Data')
 
-		DataFrame(self.crypto_data, columns=self.get_table_heading()).to_csv(
-			join('Crypto Data', str(datetime.now())+'.csv'), index=False)
+def store_in_mysql(data, table_name):
+    database = connect_db()
+    cursor = database.cursor()
+    # print(cursor)
 
-	def get_table_heading(self, url='https://crypto.com/price'):
-		soup = BeautifulSoup(requests.get(url).text, 'html.parser')
-		table = soup.find('table')
+    CREATE_COMMAND = f'''
+    CREATE TABLE `crypto_scraper`.`{table_name}` (
+        `Rank` INT NOT NULL,
+        `Name` VARCHAR(50) NOT NULL,
+        `Price` VARCHAR(20) NOT NULL,
+        `24H_Change` VARCHAR(20) NOT NULL,
+        `24H_Volume` VARCHAR(20) NOT NULL,
+        `Market_Cap` VARCHAR(20) NOT NULL,
+        PRIMARY KEY (`Name`)
+    );'''
 
-		heading = list()
-		thead = table.find('thead').find('tr').find_all('th')[1:7]
-		for th in thead:
-			heading.append(th.text)
+    INSERT_COMMAND = 'INSERT INTO {table} VALUES(%s, %s, %s, %s, %s, %s);'.format(
+        table=table_name)
 
-		return heading
+    try:
+        cursor.execute(CREATE_COMMAND)
+        database.commit()
+        print(f'--> Table Created! (Name): {table_name}')
 
-	def get_table_data(self, url):
-		soup = BeautifulSoup(requests.get(url).text, 'html.parser')
-		table = soup.find('table')
-
-		tbody = table.find('tbody').find_all('tr')
-		for tr in tbody:
-			tds = tr.find_all('td')[1:7]
-
-			self.crypto_data.append((
-				tds[0].text,
-				tds[1].find('span').text,
-				tds[2].find('div').text,
-				tds[3].text,
-				tds[4].text,
-				tds[5].text,))
+        cursor.executemany(INSERT_COMMAND, data)
+        database.commit()
+        print(f'--> Table Filled! (Name): {table_name}')
+    except Error as e:
+        print(e)
 
 
 if __name__ == '__main__':
-	Crypto()
+    date_time = get_datetime()
+
+    crypto_scraper = CryptoScraper()
+    crypto_data, heading = crypto_scraper.get_crypto_data()
+
+    save_as_csv(crypto_data, date_time, heading)
+
+    store_in_mysql(crypto_data, 'crypto' + '_' + date_time)
